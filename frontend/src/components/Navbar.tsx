@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 px-6 pt-4">
@@ -38,7 +40,6 @@ export default function Navbar() {
                 <path d="M10 14l4 4" />
               </svg>
             </div>
-
             <span className="text-white text-3xl font-extrabold tracking-tight">
               ResultHub
             </span>
@@ -46,50 +47,32 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-16">
-            <a
-              href="#search"
-              className="text-lg font-semibold text-white hover:text-[#8FD2FF] transition"
-            >
+            <a href="#search" className="text-lg font-semibold text-white hover:text-[#8FD2FF] transition">
               Check Results
             </a>
-
-            <a
-              href="#about"
-              className="text-lg font-semibold text-white hover:text-[#8FD2FF] transition"
-            >
+            <a href="#about" className="text-lg font-semibold text-white hover:text-[#8FD2FF] transition">
               About
             </a>
-
-            <a
-              href="#contact"
-              className="text-lg font-semibold text-white hover:text-[#8FD2FF] transition"
-            >
+            <a href="#contact" className="text-lg font-semibold text-white hover:text-[#8FD2FF] transition">
               Contact
             </a>
           </div>
 
-          {/* Desktop Button */}
+          {/* Desktop Admin Login Button */}
           <div className="hidden md:block">
-            <a
-              href="/admin/login"
+            <button
+              onClick={() => navigate("/dashboard")}
               className="
-                px-10
-                py-3
-                rounded-full
-                border
-                border-[#6E82A6]
-                text-white
-                font-semibold
-                hover:bg-white/10
-                transition-all
-                duration-300
+                px-10 py-3 rounded-full border
+                border-[#6E82A6] text-white font-semibold
+                hover:bg-white/10 transition-all duration-300
               "
             >
               Admin Login
-            </a>
+            </button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Toggle */}
           <button
             className="md:hidden text-white"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -97,21 +80,11 @@ export default function Navbar() {
           >
             {menuOpen ? (
               <svg width="28" height="28" viewBox="0 0 24 24">
-                <path
-                  d="M6 6L18 18M18 6L6 18"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
+                <path d="M6 6L18 18M18 6L6 18" stroke="white" strokeWidth="2" strokeLinecap="round" />
               </svg>
             ) : (
               <svg width="28" height="28" viewBox="0 0 24 24">
-                <path
-                  d="M4 7H20M4 12H20M4 17H20"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
+                <path d="M4 7H20M4 12H20M4 17H20" stroke="white" strokeWidth="2" strokeLinecap="round" />
               </svg>
             )}
           </button>
@@ -121,57 +94,31 @@ export default function Navbar() {
         {menuOpen && (
           <div
             className="
-              md:hidden
-              mt-4
-              rounded-3xl
-              bg-[#163454]/95
-              backdrop-blur-2xl
-              border
-              border-white/10
-              p-6
+              md:hidden mt-4 rounded-3xl
+              bg-[#163454]/95 backdrop-blur-2xl
+              border border-white/10 p-6
             "
           >
             <div className="flex flex-col gap-5">
-              <a
-                href="#search"
-                onClick={() => setMenuOpen(false)}
-                className="text-white hover:text-[#8FD2FF]"
-              >
+              <a href="#search" onClick={() => setMenuOpen(false)} className="text-white hover:text-[#8FD2FF]">
                 Check Results
               </a>
-
-              <a
-                href="#about"
-                onClick={() => setMenuOpen(false)}
-                className="text-white hover:text-[#8FD2FF]"
-              >
+              <a href="#about" onClick={() => setMenuOpen(false)} className="text-white hover:text-[#8FD2FF]">
                 About
               </a>
-
-              <a
-                href="#contact"
-                onClick={() => setMenuOpen(false)}
-                className="text-white hover:text-[#8FD2FF]"
-              >
+              <a href="#contact" onClick={() => setMenuOpen(false)} className="text-white hover:text-[#8FD2FF]">
                 Contact
               </a>
-
-              <a
-                href="/admin/login"
+              <button
+                onClick={() => { navigate("/dashboard"); setMenuOpen(false); }}
                 className="
-                  text-center
-                  rounded-full
-                  border
-                  border-[#6E82A6]
-                  py-3
-                  text-white
-                  font-semibold
-                  hover:bg-white/10
-                  transition
+                  text-center rounded-full border
+                  border-[#6E82A6] py-3 text-white font-semibold
+                  hover:bg-white/10 transition
                 "
               >
                 Admin Login
-              </a>
+              </button>
             </div>
           </div>
         )}
