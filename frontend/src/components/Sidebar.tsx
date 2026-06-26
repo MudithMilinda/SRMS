@@ -15,7 +15,6 @@ const navItems: NavItem[] = [
     label: "Subjects",
     children: [
       { label: "All Subjects", path: "/dashboard/subjects" },
-      { label: "Add Subjects", path: "/dashboard/subjects" }
     ],
   },
   {

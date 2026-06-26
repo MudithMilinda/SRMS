@@ -46,6 +46,76 @@ const stats = [
   },
 ]
 
+const todayClasses = [
+  {
+    time: "08:00 – 08:45",
+    subject: "Mathematics",
+    classLabel: "JSS 1",
+    teacher: "Mr. Adeyemi",
+    status: "done" as const,
+    badgeColor: "#a855f7",
+    badgeBg: "rgba(168,85,247,0.12)",
+  },
+  {
+    time: "09:00 – 09:45",
+    subject: "English Language",
+    classLabel: "JSS 2",
+    teacher: "Mrs. Okafor",
+    status: "done" as const,
+    badgeColor: "#06b6d4",
+    badgeBg: "rgba(6,182,212,0.12)",
+  },
+  {
+    time: "10:00 – 10:45",
+    subject: "Basic Science",
+    classLabel: "SSS 1",
+    teacher: "Mr. Balogun",
+    status: "live" as const,
+    badgeColor: "#ec4899",
+    badgeBg: "rgba(236,72,153,0.12)",
+  },
+  {
+    time: "11:00 – 11:45",
+    subject: "Social Studies",
+    classLabel: "JSS 3",
+    teacher: "Ms. Nwosu",
+    status: "upcoming" as const,
+    badgeColor: "#10b981",
+    badgeBg: "rgba(16,185,129,0.12)",
+  },
+  {
+    time: "12:00 – 12:45",
+    subject: "Agricultural Science",
+    classLabel: "SSS 2",
+    teacher: "Mr. Eze",
+    status: "upcoming" as const,
+    badgeColor: "#f59e0b",
+    badgeBg: "rgba(245,158,11,0.12)",
+  },
+  {
+    time: "13:30 – 14:15",
+    subject: "Chemistry",
+    classLabel: "SSS 3",
+    teacher: "Mrs. Lawal",
+    status: "upcoming" as const,
+    badgeColor: "#ef4444",
+    badgeBg: "rgba(239,68,68,0.12)",
+  },
+]
+
+const staffData = [
+  { role: "Principal", count: 1, color: "#a855f7" },
+  { role: "Vice principal", count: 1, color: "#ec4899" },
+  { role: "Class teachers", count: 6, color: "#06b6d4" },
+  { role: "Subject teachers", count: 10, color: "#10b981" },
+]
+
+function getStatusStyle(status: "done" | "live" | "upcoming") {
+  if (status === "done") return { color: "#10b981", dot: "#10b981", label: "Done" }
+  if (status === "live") return { color: "#a855f7", dot: "#a855f7", label: "Live now" }
+  return { color: "#f59e0b", dot: "#f59e0b", label: "Upcoming" }
+}
+
 export default function Dashboard({ darkMode }: DashboardProps) {
   const bg = darkMode ? "#0f0f1a" : "#f1f5f9"
   const card = darkMode ? "#1c1c30" : "#ffffff"
@@ -54,6 +124,8 @@ export default function Dashboard({ darkMode }: DashboardProps) {
   const mt = darkMode ? "#64748b" : "#64748b"
   const sub = darkMode ? "#334155" : "#f8fafc"
   const barBg = darkMode ? "rgba(255,255,255,0.05)" : "#e2e8f0"
+  const classItemBg = darkMode ? "rgba(255,255,255,0.03)" : "#f8fafc"
+  const classItemBrd = darkMode ? "rgba(255,255,255,0.06)" : "#e2e8f0"
 
   return (
     <main
@@ -146,107 +218,110 @@ export default function Dashboard({ darkMode }: DashboardProps) {
         ))}
       </div>
 
-      {/* Session + Term row */}
+      {/* Today's classes */}
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 12,
+          background: card,
+          border: `0.5px solid ${brd}`,
+          borderRadius: 12,
+          padding: "1.25rem",
           marginBottom: "1.5rem",
         }}
       >
-        {/* Current session */}
         <div
           style={{
-            background: card,
-            border: `0.5px solid ${brd}`,
-            borderRadius: 12,
-            padding: "1rem 1.25rem",
             display: "flex",
             alignItems: "center",
-            gap: 12,
+            gap: 8,
+            marginBottom: "1rem",
           }}
         >
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              background: "rgba(239,68,68,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <i className="ti ti-calendar" style={{ fontSize: 20, color: "#ef4444" }} aria-hidden="true" />
-          </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ margin: 0, fontSize: 11, color: mt, fontWeight: 400 }}>Current session</p>
-            <p style={{ margin: "3px 0 0", fontSize: 16, fontWeight: 600, color: tx }}>2024 / 2025</p>
-          </div>
-          <button
-            style={{
-              background: "rgba(168,85,247,0.1)",
-              border: "none",
-              borderRadius: 20,
-              color: "#a855f7",
-              fontSize: 12,
-              fontWeight: 500,
-              padding: "5px 14px",
-              cursor: "pointer",
-            }}
-          >
-            Switch
-          </button>
-        </div>
-
-        {/* Current term */}
-        <div
-          style={{
-            background: card,
-            border: `0.5px solid ${brd}`,
-            borderRadius: 12,
-            padding: "1rem 1.25rem",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              background: "rgba(239,68,68,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <i className="ti ti-clock" style={{ fontSize: 20, color: "#ef4444" }} aria-hidden="true" />
-          </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ margin: 0, fontSize: 11, color: mt, fontWeight: 400 }}>Current term</p>
-            <p style={{ margin: "3px 0 0", fontSize: 16, fontWeight: 600, color: tx }}>First Term</p>
-          </div>
+          <i className="ti ti-calendar-event" style={{ fontSize: 18, color: "#a855f7" }} aria-hidden="true" />
+          <h2 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: tx }}>Today's classes</h2>
           <span
             style={{
-              background: "rgba(16,185,129,0.1)",
-              color: "#059669",
+              marginLeft: "auto",
               fontSize: 11,
-              fontWeight: 500,
-              padding: "4px 10px",
+              color: mt,
+              background: sub,
+              padding: "3px 10px",
               borderRadius: 20,
+              border: `0.5px solid ${brd}`,
             }}
           >
-            Active
+            Friday, 27 June 2025
           </span>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 10,
+          }}
+        >
+          {todayClasses.map((cls) => {
+            const statusStyle = getStatusStyle(cls.status)
+            return (
+              <div
+                key={cls.time}
+                style={{
+                  background: classItemBg,
+                  border: `0.5px solid ${cls.status === "live" ? "rgba(168,85,247,0.3)" : classItemBrd}`,
+                  borderRadius: 10,
+                  padding: "0.85rem 1rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 500,
+                    color: mt,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {cls.time}
+                </span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: tx }}>{cls.subject}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 500,
+                      padding: "2px 8px",
+                      borderRadius: 20,
+                      color: cls.badgeColor,
+                      background: cls.badgeBg,
+                    }}
+                  >
+                    {cls.classLabel}
+                  </span>
+                  <span style={{ fontSize: 11, color: mt }}>{cls.teacher}</span>
+                </div>
+                <div style={{ fontSize: 11, color: statusStyle.color, marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: statusStyle.dot,
+                      display: "inline-block",
+                      flexShrink: 0,
+                    }}
+                  />
+                  {statusStyle.label}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* Bottom: class analytics + quick info */}
+      {/* Bottom: class analytics + institute info */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 12 }}>
         {/* Class analytics */}
         <div
@@ -294,7 +369,16 @@ export default function Dashboard({ darkMode }: DashboardProps) {
             }}
           >
             {["Class", "Pass rate", "Students", "Passed"].map((h) => (
-              <span key={h} style={{ fontSize: 10, fontWeight: 500, color: mt, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <span
+                key={h}
+                style={{
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: mt,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
                 {h}
               </span>
             ))}
@@ -349,7 +433,7 @@ export default function Dashboard({ darkMode }: DashboardProps) {
           })}
         </div>
 
-        {/* Right panel — institute quick info */}
+        {/* Right panel */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {/* Institute info */}
           <div
@@ -405,7 +489,7 @@ export default function Dashboard({ darkMode }: DashboardProps) {
             ))}
           </div>
 
-          {/* Teacher breakdown */}
+          {/* Staff breakdown */}
           <div
             style={{
               background: card,
@@ -420,12 +504,7 @@ export default function Dashboard({ darkMode }: DashboardProps) {
               <h3 style={{ margin: 0, fontSize: 13, fontWeight: 600, color: tx }}>Staff breakdown</h3>
             </div>
 
-            {[
-              { role: "Principal", count: 1, color: "#a855f7" },
-              { role: "Vice principal", count: 1, color: "#ec4899" },
-              { role: "Class teachers", count: 6, color: "#06b6d4" },
-              { role: "Subject teachers", count: 10, color: "#10b981" },
-            ].map((row) => (
+            {staffData.map((row) => (
               <div
                 key={row.role}
                 style={{
