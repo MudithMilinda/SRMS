@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom"
 import Sidebar from "../components/Sidebar"
 import Topbar from "../components/Topbar"
 import Dashboard from "../components/Dashboard"
-import Timetable from "./Timetable"   // ← pages folder eke thiyenawa
+import Timetable from "./Timetable" 
+import SubjectsPage from "./Subjectspage"
 
 const pageTitles: Record<string, string> = {
   "/dashboard":                    "Dashboard",
@@ -22,8 +23,7 @@ function renderPage(pathname: string, darkMode: boolean) {
   switch (pathname) {
     case "/dashboard":           return <Dashboard darkMode={darkMode} />
     case "/dashboard/timetable": return <Timetable darkMode={darkMode} />
-    // ↓ meeka hadanna one — placeholder components
-    case "/dashboard/subjects":           return <div style={{padding:32,color:"#94a3b8"}}>Subjects — coming soon</div>
+    case "/dashboard/subjects":           return <SubjectsPage darkMode={darkMode} />
     case "/dashboard/students/all":       return <div style={{padding:32,color:"#94a3b8"}}>All Students — coming soon</div>
     case "/dashboard/students/add":       return <div style={{padding:32,color:"#94a3b8"}}>Add Student — coming soon</div>
     case "/dashboard/teachers/all":       return <div style={{padding:32,color:"#94a3b8"}}>All Teachers — coming soon</div>

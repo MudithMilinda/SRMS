@@ -12,10 +12,7 @@ const navItems: NavItem[] = [
   { icon: "ti-layout-grid", label: "Time Table", path: "/dashboard/timetable" },
   {
     icon: "ti-book",
-    label: "Subjects",
-    children: [
-      { label: "All Subjects", path: "/dashboard/subjects" },
-    ],
+    label: "Subjects", path: "/dashboard/subjects"
   },
   {
     icon: "ti-users",
