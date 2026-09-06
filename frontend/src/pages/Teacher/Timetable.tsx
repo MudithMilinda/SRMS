@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
-import AddPeriodModal, { type NewPeriodInput } from "../components/AddPeriodModal"
-import PeriodDetailsModal from "../components/PeriodDetailsModal"
+import AddPeriodModal, { type NewPeriodInput } from "../../components/AddPeriodModal"
+import PeriodDetailsModal from "../../components/PeriodDetailsModal"
 
 type Period = {
   subject: string
@@ -389,17 +389,17 @@ export default function TimeTable({ darkMode }: TimeTableProps) {
                       background: isSelected
                         ? PURPLE
                         : isToday
-                        ? "rgba(239,68,68,0.16)"
-                        : isWeekDay
-                        ? "rgba(168,85,247,0.07)"
-                        : "transparent",
+                          ? "rgba(239,68,68,0.16)"
+                          : isWeekDay
+                            ? "rgba(168,85,247,0.07)"
+                            : "transparent",
                       color: isSelected
                         ? "#fff"
                         : isToday
-                        ? RED
-                        : day
-                        ? tx
-                        : "transparent",
+                          ? RED
+                          : day
+                            ? tx
+                            : "transparent",
                       fontWeight: isToday || isSelected ? 600 : 400,
                     }}
                   >
@@ -655,8 +655,8 @@ export default function TimeTable({ darkMode }: TimeTableProps) {
                     background: isSelected
                       ? "rgba(168,85,247,0.08)"
                       : darkMode
-                      ? "rgba(255,255,255,0.03)"
-                      : sub,
+                        ? "rgba(255,255,255,0.03)"
+                        : sub,
                     borderBottom: `0.5px solid ${brd}`,
                     borderRight: `0.5px solid ${brd}`,
                   }}
@@ -867,10 +867,9 @@ export default function TimeTable({ darkMode }: TimeTableProps) {
           className={selectedPeriodDetails.class}
           teacher={selectedPeriodDetails.teacher}
           date={formatDetailsDate(selectedPeriodDetails.date)}
-          time={`${timeSlots[selectedPeriodDetails.start]} - ${
-            timeSlots[selectedPeriodDetails.start + selectedPeriodDetails.duration] ??
+          time={`${timeSlots[selectedPeriodDetails.start]} - ${timeSlots[selectedPeriodDetails.start + selectedPeriodDetails.duration] ??
             periodEndTime(selectedPeriodDetails.start, selectedPeriodDetails.duration)
-          }`}
+            }`}
           color={selectedPeriodDetails.color}
           onClose={() => setSelectedPeriodDetails(null)}
           onDelete={handleDeleteSelectedPeriod}

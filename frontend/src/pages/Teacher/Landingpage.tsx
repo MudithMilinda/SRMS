@@ -1,6 +1,6 @@
-import Navbar from "../components/Navbar";
-import ResultSearch from "../components/Resultsearch";
-import Footer from "../components/Footer"
+import Navbar from "../../components/Navbar";
+import ResultSearch from "../../components/Resultsearch";
+import Footer from "../../components/Footer"
 
 export default function LandingPage() {
   return (

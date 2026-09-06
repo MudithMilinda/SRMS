@@ -2,7 +2,7 @@ import { useState } from "react"
 
 type DarkProps = { darkMode: boolean }
 
-type Subject = {
+type ClassType = {
   id: number
   name: string
   teacher: string
@@ -12,49 +12,49 @@ type Subject = {
   status: "Active" | "Inactive"
 }
 
-const initialSubjects: Subject[] = [
-  { id: 1,  name: "Mathematics",       teacher: "Mr. Adebayo",  studentCount: 28, class: "JSS 1", type: "Theory",    status: "Active"   },
-  { id: 2,  name: "English Language",  teacher: "Mrs. Okonkwo", studentCount: 31, class: "JSS 2", type: "Theory",    status: "Active"   },
-  { id: 3,  name: "Basic Science",     teacher: "Mr. Eze",      studentCount: 25, class: "JSS 3", type: "Practical", status: "Active"   },
-  { id: 4,  name: "Social Studies",    teacher: "Mrs. Bello",   studentCount: 34, class: "SSS 1", type: "Theory",    status: "Inactive" },
-  { id: 5,  name: "Physics",           teacher: "Mr. Lawal",    studentCount: 29, class: "SSS 2", type: "Theory",    status: "Active"   },
-  { id: 6,  name: "Chemistry",         teacher: "Mrs. Nwosu",   studentCount: 22, class: "SSS 3", type: "Practical", status: "Active"   },
-  { id: 7,  name: "Biology",           teacher: "Mr. Fatai",    studentCount: 30, class: "SSS 1", type: "Practical", status: "Active"   },
-  { id: 8,  name: "Literature",        teacher: "Mrs. Chukwu",  studentCount: 27, class: "SSS 2", type: "Revision",  status: "Inactive" },
-  { id: 9,  name: "Agric. Science",    teacher: "Mr. Musa",     studentCount: 24, class: "JSS 2", type: "Revision",  status: "Active"   },
-  { id: 10, name: "Civic Education",   teacher: "Mrs. Adeleke", studentCount: 31, class: "JSS 3", type: "Theory",    status: "Active"   },
-  { id: 11, name: "Further Maths",     teacher: "Mr. Ogunleye", studentCount: 18, class: "SSS 3", type: "Revision",  status: "Active"   },
-  { id: 12, name: "Computer Science",  teacher: "Mrs. Amaka",   studentCount: 26, class: "SSS 2", type: "Practical", status: "Active"   },
+const initialClasses: ClassType[] = [
+  { id: 1, name: "Mathematics", teacher: "Mr. Adebayo", studentCount: 28, class: "JSS 1", type: "Theory", status: "Active" },
+  { id: 2, name: "English Language", teacher: "Mrs. Okonkwo", studentCount: 31, class: "JSS 2", type: "Theory", status: "Active" },
+  { id: 3, name: "Basic Science", teacher: "Mr. Eze", studentCount: 25, class: "JSS 3", type: "Practical", status: "Active" },
+  { id: 4, name: "Social Studies", teacher: "Mrs. Bello", studentCount: 34, class: "SSS 1", type: "Theory", status: "Inactive" },
+  { id: 5, name: "Physics", teacher: "Mr. Lawal", studentCount: 29, class: "SSS 2", type: "Theory", status: "Active" },
+  { id: 6, name: "Chemistry", teacher: "Mrs. Nwosu", studentCount: 22, class: "SSS 3", type: "Practical", status: "Active" },
+  { id: 7, name: "Biology", teacher: "Mr. Fatai", studentCount: 30, class: "SSS 1", type: "Practical", status: "Active" },
+  { id: 8, name: "Literature", teacher: "Mrs. Chukwu", studentCount: 27, class: "SSS 2", type: "Revision", status: "Inactive" },
+  { id: 9, name: "Agric. Science", teacher: "Mr. Musa", studentCount: 24, class: "JSS 2", type: "Revision", status: "Active" },
+  { id: 10, name: "Civic Education", teacher: "Mrs. Adeleke", studentCount: 31, class: "JSS 3", type: "Theory", status: "Active" },
+  { id: 11, name: "Further Maths", teacher: "Mr. Ogunleye", studentCount: 18, class: "SSS 3", type: "Revision", status: "Active" },
+  { id: 12, name: "Computer Science", teacher: "Mrs. Amaka", studentCount: 26, class: "SSS 2", type: "Practical", status: "Active" },
 ]
 
 const typeColor: Record<string, { text: string; bg: string }> = {
-  Theory:    { text: "#a855f7", bg: "rgba(168,85,247,0.1)"  },
-  Revision:  { text: "#06b6d4", bg: "rgba(6,182,212,0.1)"   },
-  Practical: { text: "#f59e0b", bg: "rgba(245,158,11,0.1)"  },
+  Theory: { text: "#a855f7", bg: "rgba(168,85,247,0.1)" },
+  Revision: { text: "#06b6d4", bg: "rgba(6,182,212,0.1)" },
+  Practical: { text: "#f59e0b", bg: "rgba(245,158,11,0.1)" },
 }
 
 const emptyForm = {
   name: "", teacher: "", studentCount: "", class: "",
-  type: "Theory" as Subject["type"], status: "Active" as Subject["status"],
+  type: "Theory" as ClassType["type"], status: "Active" as ClassType["status"],
 }
 
-export default function SubjectsPage({ darkMode: d }: DarkProps) {
-  const [subjects, setSubjects]     = useState<Subject[]>(initialSubjects)
-  const [search, setSearch]         = useState("")
-  const [showModal, setShowModal]   = useState(false)
-  const [editItem, setEditItem]     = useState<Subject | null>(null)
-  const [form, setForm]             = useState(emptyForm)
+export default function ClassesPage({ darkMode: d }: DarkProps) {
+  const [classes, setClassTypes] = useState<ClassType[]>(initialClasses)
+  const [search, setSearch] = useState("")
+  const [showModal, setShowModal] = useState(false)
+  const [editItem, setEditItem] = useState<ClassType | null>(null)
+  const [form, setForm] = useState(emptyForm)
   const [filterType, setFilterType] = useState<string>("All")
 
-  const bg   = d ? "#0f0f1a" : "#f1f5f9"
+  const bg = d ? "#0f0f1a" : "#f1f5f9"
   const card = d ? "#1c1c30" : "#ffffff"
-  const brd  = d ? "rgba(255,255,255,0.07)" : "#e2e8f0"
-  const tx   = d ? "#e2e8f0" : "#0f172a"
-  const mt   = d ? "#64748b" : "#94a3b8"
-  const inp  = d ? "#13132a" : "#f8fafc"
-  const ovl  = d ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.35)"
+  const brd = d ? "rgba(255,255,255,0.07)" : "#e2e8f0"
+  const tx = d ? "#e2e8f0" : "#0f172a"
+  const mt = d ? "#64748b" : "#94a3b8"
+  const inp = d ? "#13132a" : "#f8fafc"
+  const ovl = d ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.35)"
 
-  const filtered = subjects.filter(s => {
+  const filtered = classes.filter(s => {
     const matchSearch =
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.teacher.toLowerCase().includes(search.toLowerCase()) ||
@@ -69,7 +69,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
     setShowModal(true)
   }
 
-  const openEdit = (s: Subject) => {
+  const openEdit = (s: ClassType) => {
     setEditItem(s)
     setForm({
       name: s.name, teacher: s.teacher,
@@ -82,14 +82,14 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
   const handleSave = () => {
     if (!form.name.trim()) return
     if (editItem) {
-      setSubjects(prev => prev.map(s =>
+      setClassTypes(prev => prev.map(s =>
         s.id === editItem.id
           ? { ...s, ...form, studentCount: Number(form.studentCount) || 0 }
           : s
       ))
     } else {
-      const newId = Math.max(...subjects.map(s => s.id)) + 1
-      setSubjects(prev => [...prev, {
+      const newId = Math.max(...classes.map(s => s.id)) + 1
+      setClassTypes(prev => [...prev, {
         id: newId, ...form, studentCount: Number(form.studentCount) || 0,
       }])
     }
@@ -97,7 +97,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
   }
 
   const handleDelete = (id: number) => {
-    setSubjects(prev => prev.filter(s => s.id !== id))
+    setClassTypes(prev => prev.filter(s => s.id !== id))
     setShowModal(false)
   }
 
@@ -118,15 +118,15 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", flexWrap: "wrap", gap: 10 }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: tx }}>Subjects</h1>
-          <p style={{ margin: "2px 0 0", fontSize: 12, color: mt }}>{subjects.length} subjects total</p>
+          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: tx }}>Classes</h1>
+          <p style={{ margin: "2px 0 0", fontSize: 12, color: mt }}>{classes.length} classes total</p>
         </div>
         <button
           onClick={openAdd}
           style={{ display: "flex", alignItems: "center", gap: 7, background: "linear-gradient(135deg,#a855f7,#ec4899)", border: "none", borderRadius: 10, color: "#fff", fontSize: 13, fontWeight: 600, padding: "9px 18px", cursor: "pointer" }}
         >
           <i className="ti ti-plus" style={{ fontSize: 16 }} />
-          Add subject
+          Add class
         </button>
       </div>
 
@@ -137,7 +137,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by subject, teacher, class…"
+            placeholder="Search by class, teacher, class…"
             style={{ ...inputStyle, paddingLeft: 36, background: card }}
           />
         </div>
@@ -169,14 +169,14 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
           borderBottom: `0.5px solid ${brd}`,
           background: d ? "rgba(255,255,255,0.03)" : "#f8fafc",
         }}>
-          {["Subject", "Teacher", "Student count", "Type", ""].map(h => (
+          {["Class", "Teacher", "Student count", "Type", ""].map(h => (
             <span key={h} style={{ fontSize: 10, fontWeight: 600, color: mt, textTransform: "uppercase", letterSpacing: "0.07em" }}>{h}</span>
           ))}
         </div>
 
         {/* Rows */}
         {filtered.length === 0 ? (
-          <div style={{ padding: "2.5rem", textAlign: "center", color: mt, fontSize: 13 }}>No subjects found</div>
+          <div style={{ padding: "2.5rem", textAlign: "center", color: mt, fontSize: 13 }}>No classes found</div>
         ) : (
           filtered.map((s, i) => (
             <div
@@ -192,7 +192,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
               onMouseEnter={e => (e.currentTarget.style.background = d ? "rgba(255,255,255,0.025)" : "#f8fafc")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
             >
-              {/* Subject */}
+              {/* Class */}
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 38, height: 38, borderRadius: 10, background: typeColor[s.type].bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <i className="ti ti-book-2" style={{ fontSize: 18, color: typeColor[s.type].text }} />
@@ -252,7 +252,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
             style={{ background: card, border: `0.5px solid ${brd}`, borderRadius: 16, padding: "1.75rem", width: 420, maxWidth: "90vw", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-              <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: tx }}>{editItem ? "Edit subject" : "Add subject"}</h2>
+              <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: tx }}>{editItem ? "Edit class" : "Add class"}</h2>
               <button onClick={() => setShowModal(false)} style={{ background: "transparent", border: "none", color: mt, fontSize: 20, cursor: "pointer" }}>
                 <i className="ti ti-x" />
               </button>
@@ -260,7 +260,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
 
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={labelStyle}>Subject name</label>
+                <label style={labelStyle}>Class name</label>
                 <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Mathematics" style={inputStyle} />
               </div>
               <div>
@@ -283,7 +283,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={labelStyle}>Type</label>
-                  <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as Subject["type"] }))} style={{ ...inputStyle, cursor: "pointer" }}>
+                  <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as ClassType["type"] }))} style={{ ...inputStyle, cursor: "pointer" }}>
                     <option>Theory</option>
                     <option>Revision</option>
                     <option>Practical</option>
@@ -291,7 +291,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
                 </div>
                 <div>
                   <label style={labelStyle}>Status</label>
-                  <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as Subject["status"] }))} style={{ ...inputStyle, cursor: "pointer" }}>
+                  <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value as ClassType["status"] }))} style={{ ...inputStyle, cursor: "pointer" }}>
                     <option>Active</option>
                     <option>Inactive</option>
                   </select>
@@ -309,7 +309,7 @@ export default function SubjectsPage({ darkMode: d }: DarkProps) {
                 Cancel
               </button>
               <button onClick={handleSave} style={{ padding: "9px 20px", borderRadius: 9, border: "none", background: "linear-gradient(135deg,#a855f7,#ec4899)", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                {editItem ? "Save changes" : "Add subject"}
+                {editItem ? "Save changes" : "Add class"}
               </button>
             </div>
           </div>

@@ -12,20 +12,20 @@ const classData = [
 ]
 
 const statsData = [
-  { icon: "ti-users",    label: "Total students", value: "149", sub: "Across all classes", color: "#a855f7", bg: "rgba(168,85,247,0.12)"  },
-  { icon: "ti-book",     label: "Total subjects",  value: "12",  sub: "Active this term",   color: "#06b6d4", bg: "rgba(6,182,212,0.12)"   },
-  { icon: "ti-school",   label: "Teachers",        value: "18",  sub: "On staff",           color: "#10b981", bg: "rgba(16,185,129,0.12)"  },
-  { icon: "ti-building", label: "Classrooms",      value: "6",   sub: "In use",             color: "#f59e0b", bg: "rgba(245,158,11,0.12)"  },
+  { icon: "ti-users", label: "Total students", value: "149", sub: "Across all classes", color: "#a855f7", bg: "rgba(168,85,247,0.12)" },
+  { icon: "ti-book", label: "Total classes", value: "12", sub: "Active this term", color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
+  { icon: "ti-school", label: "Teachers", value: "18", sub: "On staff", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
+  { icon: "ti-building", label: "Classrooms", value: "6", sub: "In use", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
 ]
 
 const maxStudents = Math.max(...classData.map(c => c.students))
 
 export default function Dashboard({ darkMode: d }: DashboardProps) {
-  const bg    = d ? "#0f0f1a" : "#f1f5f9"
-  const card  = d ? "#1c1c30" : "#ffffff"
-  const brd   = d ? "rgba(255,255,255,0.07)" : "#e2e8f0"
-  const tx    = d ? "#e2e8f0" : "#0f172a"
-  const mt    = d ? "#64748b" : "#64748b"
+  const bg = d ? "#0f0f1a" : "#f1f5f9"
+  const card = d ? "#1c1c30" : "#ffffff"
+  const brd = d ? "rgba(255,255,255,0.07)" : "#e2e8f0"
+  const tx = d ? "#e2e8f0" : "#0f172a"
+  const mt = d ? "#64748b" : "#64748b"
   const barBg = d ? "rgba(255,255,255,0.05)" : "#e2e8f0"
 
   return (
