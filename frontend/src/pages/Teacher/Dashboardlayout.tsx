@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import Sidebar from "../../components/Sidebar"
 import Topbar from "../../components/Topbar"
@@ -50,12 +50,22 @@ export default function DashboardLayout() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      navigate("/admin");
+    }
+  }, [navigate]);
+
   const currentPage = pageTitles[location.pathname] ?? "Dashboard"
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "Inter, system-ui, sans-serif", background: darkMode ? "#0f0f1a" : "#f1f5f9" }}>
       <div style={{ flexShrink: 0, height: "100vh", overflowY: "auto", background: "#1a1a2e" }}>
-        <Sidebar onSignOut={() => navigate("/")} />
+        <Sidebar onSignOut={() => {
+          localStorage.removeItem("adminToken");
+          navigate("/admin");
+        }} />
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", background: darkMode ? "#0f0f1a" : "#f1f5f9" }}>
         <Topbar

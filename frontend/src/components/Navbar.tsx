@@ -61,7 +61,7 @@ export default function Navbar() {
           {/* Desktop Admin Login Button */}
           <div className="hidden md:block">
             <button
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/admin")}
               className="
                 px-10 py-3 rounded-full border
                 border-[#6E82A6] text-white font-semibold
@@ -110,7 +110,7 @@ export default function Navbar() {
                 Contact
               </a>
               <button
-                onClick={() => { navigate("/dashboard"); setMenuOpen(false); }}
+                onClick={() => { navigate("/admin"); setMenuOpen(false); }}
                 className="
                   text-center rounded-full border
                   border-[#6E82A6] py-3 text-white font-semibold

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getProfile, updateProfile, changePassword, getErrorMessage } from "../../api/adminApi";
 
 type SettingsProps = {
   darkMode: boolean;
@@ -22,23 +23,80 @@ export default function Settings({ darkMode: d }: SettingsProps) {
     confirmPassword: ""
   });
 
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  // Page eka open wena welawata, DB eke thiyena real profile data eka load karanawa
+  React.useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await getProfile();
+
+        setFormData((prev) => ({
+          ...prev,
+          name: data.admin.name ?? prev.name,
+          email: data.admin.email ?? prev.email,
+          phone: data.admin.phone ?? prev.phone,
+          topBarName: data.admin.topBarName ?? prev.topBarName,
+        }));
+      } catch (error) {
+        // Profile load wenne nathnam, default values thibba widihatama thiyanawa
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Profile settings saved successfully!");
+    setProfileLoading(true);
+
+    try {
+      await updateProfile({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        topBarName: formData.topBarName,
+      });
+
+      alert("Profile settings saved successfully!");
+    } catch (error) {
+      alert(getErrorMessage(error));
+    } finally {
+      setProfileLoading(false);
+    }
   };
 
-  const handleSavePassword = (e: React.FormEvent) => {
+  const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (formData.newPassword !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    alert("Password changed successfully!");
+
+    setPasswordLoading(true);
+
+    try {
+      await changePassword(formData.oldPassword, formData.newPassword);
+
+      alert("Password changed successfully!");
+      setFormData((prev) => ({
+        ...prev,
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
+    } catch (error) {
+      alert(getErrorMessage(error));
+    } finally {
+      setPasswordLoading(false);
+    }
   };
 
   const labelStyle = {
@@ -116,11 +174,17 @@ export default function Settings({ darkMode: d }: SettingsProps) {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <button type="submit" style={{
-                padding: "0.6rem 1.5rem", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                background: "#a855f7", border: "none", color: "#fff", cursor: "pointer"
-              }}>
-                Save Profile
+              <button
+                type="submit"
+                disabled={profileLoading}
+                style={{
+                  padding: "0.6rem 1.5rem", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  background: "#a855f7", border: "none", color: "#fff",
+                  cursor: profileLoading ? "not-allowed" : "pointer",
+                  opacity: profileLoading ? 0.7 : 1
+                }}
+              >
+                {profileLoading ? "Saving..." : "Save Profile"}
               </button>
             </div>
           </form>
@@ -147,11 +211,17 @@ export default function Settings({ darkMode: d }: SettingsProps) {
             </div>
 
             <div style={{ display: "flex" }}>
-              <button type="submit" style={{
-                padding: "0.6rem 1.5rem", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                background: "rgba(239, 68, 68, 0.1)", border: "none", color: "#ef4444", cursor: "pointer"
-              }}>
-                Update Password
+              <button
+                type="submit"
+                disabled={passwordLoading}
+                style={{
+                  padding: "0.6rem 1.5rem", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  background: "rgba(239, 68, 68, 0.1)", border: "none", color: "#ef4444",
+                  cursor: passwordLoading ? "not-allowed" : "pointer",
+                  opacity: passwordLoading ? 0.7 : 1
+                }}
+              >
+                {passwordLoading ? "Updating..." : "Update Password"}
               </button>
             </div>
           </form>
