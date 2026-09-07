@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { getProfile, updateProfile, changePassword, getErrorMessage } from "../../api/adminApi";
+import {
+  getProfile,
+  updateProfile,
+  changePassword,
+  getErrorMessage,
+  getGoogleDriveStatus,
+  connectGoogleDrive,
+} from "../../api/adminApi";
 
 type SettingsProps = {
   darkMode: boolean;
@@ -26,6 +33,11 @@ export default function Settings({ darkMode: d }: SettingsProps) {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
 
+  // Google Drive connection state
+  const [driveConnected, setDriveConnected] = useState(false);
+  const [driveLoading, setDriveLoading] = useState(true);
+  const [driveActionLoading, setDriveActionLoading] = useState(false);
+
   // Load the current profile data when the page opens.
   React.useEffect(() => {
     const fetchProfile = async () => {
@@ -45,6 +57,43 @@ export default function Settings({ darkMode: d }: SettingsProps) {
     };
 
     fetchProfile();
+  }, []);
+
+  // Load Google Drive connection status, and pick up ?drive=... redirect result from the OAuth callback
+  React.useEffect(() => {
+    const fetchDriveStatus = async () => {
+      try {
+        const data = await getGoogleDriveStatus();
+        setDriveConnected(data.connected);
+      } catch (error) {
+        // leave as disconnected if the check fails
+      } finally {
+        setDriveLoading(false);
+      }
+    };
+
+    fetchDriveStatus();
+
+    // Show feedback if we just landed back here from Google's OAuth redirect
+    const params = new URLSearchParams(window.location.search);
+    const driveResult = params.get("drive");
+    if (driveResult === "connected") {
+      alert("Google Drive connected successfully!");
+    } else if (driveResult === "error") {
+      alert("Failed to connect Google Drive. Please try again.");
+    } else if (driveResult === "already_connected_reauth_needed") {
+      alert("Please reconnect Google Drive to refresh access.");
+    }
+    if (driveResult) {
+      // clean the query param out of the URL without a full reload
+      params.delete("drive");
+      const newSearch = params.toString();
+      window.history.replaceState(
+        {},
+        "",
+        window.location.pathname + (newSearch ? `?${newSearch}` : "")
+      );
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,6 +145,17 @@ export default function Settings({ darkMode: d }: SettingsProps) {
       alert(getErrorMessage(error));
     } finally {
       setPasswordLoading(false);
+    }
+  };
+
+  const handleConnectDrive = async () => {
+    setDriveActionLoading(true);
+    try {
+      const { url } = await connectGoogleDrive();
+      window.location.href = url; // full page navigation - needed for Google's consent screen
+    } catch (error) {
+      alert(getErrorMessage(error));
+      setDriveActionLoading(false);
     }
   };
 
@@ -191,7 +251,7 @@ export default function Settings({ darkMode: d }: SettingsProps) {
         </div>
 
         {/* Change Password */}
-        <div style={{ background: card, border: `1px solid ${brd}`, borderRadius: 12, padding: "2rem" }}>
+        <div style={{ background: card, border: `1px solid ${brd}`, borderRadius: 12, padding: "2rem", marginBottom: "2rem" }}>
           <h2 style={{ margin: "0 0 1.5rem", fontSize: 16, fontWeight: 600, color: tx, borderBottom: `1px solid ${brd}`, paddingBottom: "0.5rem" }}>Change Password</h2>
 
           <form onSubmit={handleSavePassword}>
@@ -225,6 +285,48 @@ export default function Settings({ darkMode: d }: SettingsProps) {
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Google Drive Connection */}
+        <div style={{ background: card, border: `1px solid ${brd}`, borderRadius: 12, padding: "2rem" }}>
+          <h2 style={{ margin: "0 0 1.5rem", fontSize: 16, fontWeight: 600, color: tx, borderBottom: `1px solid ${brd}`, paddingBottom: "0.5rem" }}>
+            Google Drive
+          </h2>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+            <div>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: tx }}>
+                {driveLoading
+                  ? "Checking connection..."
+                  : driveConnected
+                  ? "✅ Connected"
+                  : "Not connected"}
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: mt, maxWidth: 420 }}>
+                Assignment files are uploaded directly to Google Drive. Only the shareable link is stored in the database.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleConnectDrive}
+              disabled={driveLoading || driveActionLoading}
+              style={{
+                padding: "0.6rem 1.25rem", borderRadius: 8, fontSize: 13, fontWeight: 600,
+                background: driveConnected ? "transparent" : "#a855f7",
+                border: driveConnected ? `1px solid ${brd}` : "none",
+                color: driveConnected ? tx : "#fff",
+                cursor: driveLoading || driveActionLoading ? "not-allowed" : "pointer",
+                opacity: driveActionLoading ? 0.7 : 1,
+              }}
+            >
+              {driveActionLoading
+                ? "Redirecting..."
+                : driveConnected
+                ? "Reconnect"
+                : "Connect Google Drive"}
+            </button>
+          </div>
         </div>
 
       </div>

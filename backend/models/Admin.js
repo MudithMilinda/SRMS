@@ -29,6 +29,11 @@ const adminSchema = new mongoose.Schema(
       type: String,
       default: "Admin",
     },
+    googleDrive: {
+      connected: { type: Boolean, default: false },
+      refreshToken: { type: String, default: null }, // consider encrypting at rest, see note below
+      connectedEmail: { type: String, default: null }, // which Google account authorized this
+    },
   },
   { timestamps: true },
 );

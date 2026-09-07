@@ -79,6 +79,16 @@ export async function changePassword(oldPassword: string, newPassword: string) {
   return res.data;
 }
 
+export const getGoogleDriveStatus = async () => {
+  const res = await api.get("/api/admin/google/status");
+  return res.data; // { connected: boolean }
+};
+
+export const connectGoogleDrive = async () => {
+  const res = await api.get("/api/admin/google/connect");
+  return res.data; // { url: string }
+};
+
 // ---------- Profile ----------
 
 export async function getProfile() {

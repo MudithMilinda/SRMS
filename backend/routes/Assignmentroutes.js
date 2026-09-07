@@ -48,8 +48,8 @@ router.post("/", verifyToken, upload.single("file"), async (req, res) => {
       return res.status(400).json({ message: "A file must be uploaded" });
     }
 
-    // Upload to Google Drive
-    const { driveFileId, fileUrl } = await uploadFileToDrive(req.file);
+    // Upload to Google Drive - uses this admin's own stored refresh token
+    const { driveFileId, fileUrl } = await uploadFileToDrive(req.file, req.admin.id);
 
     const assignment = await Assignment.create({
       title,
@@ -67,6 +67,9 @@ router.post("/", verifyToken, upload.single("file"), async (req, res) => {
     res.status(201).json({ message: "Assignment uploaded successfully", assignment: populated });
   } catch (error) {
     console.error("Create assignment error:", error.message);
+    if (error.code === "DRIVE_NOT_CONNECTED") {
+      return res.status(400).json({ message: "Google Drive is not connected. Please connect it from Settings first." });
+    }
     res.status(500).json({ message: error.message || "Server error" });
   }
 });
@@ -79,12 +82,22 @@ router.delete("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "Assignment not found" });
     }
 
-    await deleteFileFromDrive(assignment.driveFileId);
+    // Use the id of the admin who originally created the assignment -
+    // relevant if another admin (with a different Drive connection) deletes it
+    await deleteFileFromDrive(assignment.driveFileId, assignment.createdBy);
     await assignment.deleteOne();
 
     res.json({ message: "Assignment deleted successfully" });
   } catch (error) {
     console.error("Delete assignment error:", error.message);
+    if (error.code === "DRIVE_NOT_CONNECTED") {
+      // The file's owner admin disconnected Drive - the file can't be removed from Drive automatically.
+      // Still remove the DB record so the assignment doesn't show as a dangling entry, but let the admin know.
+      await assignment.deleteOne();
+      return res.json({
+        message: "Assignment removed, but the file on Drive could not be deleted (Drive is disconnected for that admin).",
+      });
+    }
     res.status(500).json({ message: "Server error" });
   }
 });

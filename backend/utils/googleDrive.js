@@ -1,59 +1,73 @@
+// utils/googleDrive.js
 const { google } = require("googleapis");
 const { Readable } = require("stream");
+const Admin = require("../models/Admin");
 
-// Set the service account credentials file path in .env:
-// GOOGLE_APPLICATION_CREDENTIALS=./config/service-account.json
-// GOOGLE_DRIVE_FOLDER_ID=<ID of the folder shared with the service account>
-
-const auth = new google.auth.GoogleAuth({
-  keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-  scopes: ["https://www.googleapis.com/auth/drive"],
-});
-
-const drive = google.drive({ version: "v3", auth });
-
-function bufferToStream(buffer) {
-  const stream = new Readable();
-  stream.push(buffer);
-  stream.push(null);
-  return stream;
+function getOAuthClient() {
+  return new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  );
 }
 
-// file: comes from multer's memory storage as { buffer, originalname, mimetype }
-async function uploadFileToDrive(file) {
-  const response = await drive.files.create({
-    requestBody: {
-      name: `${Date.now()}-${file.originalname}`,
-      parents: [process.env.GOOGLE_DRIVE_FOLDER_ID],
-    },
-    media: {
-      mimeType: file.mimetype,
-      body: bufferToStream(file.buffer),
-    },
+// state = the admin's existing JWT (already signed & verifiable) - carries identity through the redirect
+function getAuthUrl(state) {
+  const oauth2Client = getOAuthClient();
+  return oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    prompt: "consent",
+    scope: ["https://www.googleapis.com/auth/drive.file"],
+    state,
+  });
+}
+
+async function exchangeCodeForTokens(code) {
+  const oauth2Client = getOAuthClient();
+  const { tokens } = await oauth2Client.getToken(code);
+  return tokens;
+}
+
+async function getDriveClientForAdmin(adminId) {
+  const admin = await Admin.findById(adminId).select("googleDrive");
+  if (!admin?.googleDrive?.connected || !admin.googleDrive.refreshToken) {
+    const err = new Error("Google Drive is not connected for this admin");
+    err.code = "DRIVE_NOT_CONNECTED";
+    throw err;
+  }
+  const oauth2Client = getOAuthClient();
+  oauth2Client.setCredentials({ refresh_token: admin.googleDrive.refreshToken });
+  return google.drive({ version: "v3", auth: oauth2Client });
+}
+
+async function uploadFileToDrive(file, adminId) {
+  const drive = await getDriveClientForAdmin(adminId);
+  const bufferStream = new Readable();
+  bufferStream.push(file.buffer);
+  bufferStream.push(null);
+
+  const { data: created } = await drive.files.create({
+    requestBody: { name: file.originalname },
+    media: { mimeType: file.mimetype, body: bufferStream },
     fields: "id",
   });
 
-  const fileId = response.data.id;
-
-  // Grant "anyone with the link" access so it can be opened from the link
   await drive.permissions.create({
-    fileId,
+    fileId: created.id,
     requestBody: { role: "reader", type: "anyone" },
   });
 
-  const fileData = await drive.files.get({
-    fileId,
-    fields: "webViewLink, webContentLink",
+  const { data: fresh } = await drive.files.get({
+    fileId: created.id,
+    fields: "webViewLink",
   });
 
-  return {
-    driveFileId: fileId,
-    fileUrl: fileData.data.webViewLink,
-  };
+  return { driveFileId: created.id, fileUrl: fresh.webViewLink };
 }
 
-async function deleteFileFromDrive(fileId) {
-  await drive.files.delete({ fileId });
+async function deleteFileFromDrive(driveFileId, adminId) {
+  const drive = await getDriveClientForAdmin(adminId);
+  await drive.files.delete({ fileId: driveFileId });
 }
 
-module.exports = { uploadFileToDrive, deleteFileFromDrive };
+module.exports = { getAuthUrl, exchangeCodeForTokens, uploadFileToDrive, deleteFileFromDrive };
