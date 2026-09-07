@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getClasses, createAssignment, getErrorMessage, type ClassType } from "../../api/adminApi"; // adjust this path to match your folder structure
 
 type AddAssignmentProps = {
   darkMode: boolean;
@@ -12,15 +13,34 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
   const mt = d ? "#64748b" : "#64748b";
   const inputBg = d ? "rgba(0,0,0,0.2)" : "#f8fafc";
 
+  const [classes, setClasses] = useState<ClassType[]>([]);
+  const [loadingClasses, setLoadingClasses] = useState(true);
+
   const [formData, setFormData] = useState({
     title: "",
-    className: "",
-    subject: "",
+    classId: "",
     dueDate: "",
     instructions: "",
   });
 
   const [file, setFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  // Load all classes from the DB for the dropdown
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getClasses();
+        setClasses(data.classes);
+      } catch (err) {
+        setError(getErrorMessage(err));
+      } finally {
+        setLoadingClasses(false);
+      }
+    })();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -33,10 +53,31 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData, file);
-    alert("Assignment uploaded successfully!");
+    if (!file) {
+      setError("A file must be uploaded");
+      return;
+    }
+    setError("");
+    setSuccess("");
+    setSubmitting(true);
+    try {
+      await createAssignment({
+        title: formData.title,
+        classId: formData.classId,
+        dueDate: formData.dueDate,
+        instructions: formData.instructions,
+        file,
+      });
+      setSuccess("Assignment uploaded successfully!");
+      setFormData({ title: "", classId: "", dueDate: "", instructions: "" });
+      setFile(null);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const labelStyle = {
@@ -68,6 +109,17 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
           <p style={{ margin: 0, fontSize: 13, color: mt }}>Upload a new assignment for students.</p>
         </div>
 
+        {error && (
+          <div style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", padding: "10px 14px", borderRadius: 8, fontSize: 13, marginBottom: 14 }}>
+            {error}
+          </div>
+        )}
+        {success && (
+          <div style={{ background: "rgba(34,197,94,0.1)", color: "#22c55e", padding: "10px 14px", borderRadius: 8, fontSize: 13, marginBottom: 14 }}>
+            {success}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={{ background: card, border: `1px solid ${brd}`, borderRadius: 12, padding: "1.5rem" }}>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
@@ -81,27 +133,22 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
             <div>
               <label style={labelStyle}>Class</label>
               <select
-                name="className" value={formData.className} onChange={handleInputChange}
-                style={inputStyle} required
+                name="classId" value={formData.classId} onChange={handleInputChange}
+                style={inputStyle} required disabled={loadingClasses}
               >
-                <option value="">Select a class...</option>
-                <option value="Grade 9">Grade 9</option>
-                <option value="Grade 10">Grade 10</option>
-                <option value="Grade 11">Grade 11</option>
-                <option value="Grade 12">Grade 12</option>
+                <option value="">
+                  {loadingClasses ? "Loading classes..." : "Select a class..."}
+                </option>
+                {classes.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name} — {c.class} ({c.teacher})
+                  </option>
+                ))}
               </select>
-            </div>
-            <div>
-              <label style={labelStyle}>Subject</label>
-              <input
-                type="text" name="subject" placeholder="e.g. Mathematics"
-                value={formData.subject} onChange={handleInputChange}
-                style={inputStyle} required
-              />
             </div>
             <div>
               <label style={labelStyle}>Due Date</label>
@@ -143,7 +190,7 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
                 style={{
                   position: "absolute", inset: 0, opacity: 0, cursor: "pointer", width: "100%", height: "100%"
                 }}
-                required
+                required={!file}
               />
             </div>
           </div>
@@ -151,6 +198,7 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
             <button
               type="button"
+              disabled={submitting}
               style={{
                 padding: "0.6rem 1.25rem", borderRadius: 8, fontSize: 13, fontWeight: 600,
                 background: "transparent", border: `1px solid ${brd}`, color: tx, cursor: "pointer"
@@ -160,12 +208,14 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
             </button>
             <button
               type="submit"
+              disabled={submitting}
               style={{
                 padding: "0.6rem 1.25rem", borderRadius: 8, fontSize: 13, fontWeight: 600,
-                background: "#a855f7", border: "none", color: "#fff", cursor: "pointer"
+                background: "#a855f7", border: "none", color: "#fff",
+                cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.6 : 1
               }}
             >
-              Upload Assignment
+              {submitting ? "Uploading..." : "Upload Assignment"}
             </button>
           </div>
 
@@ -174,4 +224,3 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
     </main>
   );
 }
-

@@ -11,7 +11,9 @@ router.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ message: "Username saha Password danna oni" });
+      return res
+        .status(400)
+        .json({ message: "Username and password are required" });
     }
 
     const admin = await Admin.findOne({ username });
@@ -27,7 +29,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { id: admin._id, username: admin.username },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
 
     res.json({
@@ -41,12 +43,12 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// GET /api/admin/profile  (protected - token oni)
+// GET /api/admin/profile (protected)
 router.get("/profile", verifyToken, async (req, res) => {
   try {
     const admin = await Admin.findById(req.admin.id).select("-password");
     if (!admin) {
-      return res.status(404).json({ message: "Admin hoyaganna bæri unā" });
+      return res.status(404).json({ message: "Admin not found" });
     }
 
     res.json({ admin });
@@ -56,14 +58,14 @@ router.get("/profile", verifyToken, async (req, res) => {
   }
 });
 
-// PUT /api/admin/profile  (protected - token oni)
+// PUT /api/admin/profile (protected)
 router.put("/profile", verifyToken, async (req, res) => {
   try {
     const { name, email, phone, topBarName } = req.body;
 
     const admin = await Admin.findById(req.admin.id);
     if (!admin) {
-      return res.status(404).json({ message: "Admin hoyaganna bæri unā" });
+      return res.status(404).json({ message: "Admin not found" });
     }
 
     if (name !== undefined) admin.name = name;
@@ -90,26 +92,28 @@ router.put("/profile", verifyToken, async (req, res) => {
   }
 });
 
-// PUT /api/admin/change-password  (protected - token oni)
+// PUT /api/admin/change-password (protected)
 router.put("/change-password", verifyToken, async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({ message: "Old password saha New password danna oni" });
+      return res
+        .status(400)
+        .json({ message: "Old password and new password are required" });
     }
 
     const admin = await Admin.findById(req.admin.id);
     if (!admin) {
-      return res.status(404).json({ message: "Admin hoyaganna bæri unā" });
+      return res.status(404).json({ message: "Admin not found" });
     }
 
     const isMatch = await admin.comparePassword(oldPassword);
     if (!isMatch) {
-      return res.status(401).json({ message: "Current password eka wrong" });
+      return res.status(401).json({ message: "Current password is incorrect" });
     }
 
-    admin.password = newPassword; // pre-save hook eken auto hash karanawa
+    admin.password = newPassword;
     await admin.save();
 
     res.json({ message: "Password changed successfully" });

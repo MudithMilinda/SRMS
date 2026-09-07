@@ -26,7 +26,7 @@ export default function Settings({ darkMode: d }: SettingsProps) {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Page eka open wena welawata, DB eke thiyena real profile data eka load karanawa
+  // Load the current profile data when the page opens.
   React.useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -40,7 +40,7 @@ export default function Settings({ darkMode: d }: SettingsProps) {
           topBarName: data.admin.topBarName ?? prev.topBarName,
         }));
       } catch (error) {
-        // Profile load wenne nathnam, default values thibba widihatama thiyanawa
+        // Keep the default values if the profile cannot be loaded.
       }
     };
 

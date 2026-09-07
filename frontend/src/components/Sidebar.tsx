@@ -16,11 +16,8 @@ const defaultNavItems: NavItem[] = [
   },
   {
     icon: "ti-users",
-    label: "Students",
-    children: [
-      { label: "All Students", path: "/dashboard/students/all" },
-      { label: "Add Student", path: "/dashboard/students/add" },
-    ],
+    label: "All Students",
+    path: "/dashboard/students/all"
   },
   {
     icon: "ti-file-text",

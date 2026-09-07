@@ -33,7 +33,7 @@ const adminSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Save karanna kalin password eka hash karanna (encrypt)
+// Hash the password before saving it.
 adminSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
@@ -41,7 +41,7 @@ adminSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Login/change-password walata password compare karanna
+// Compare passwords during login and password changes.
 adminSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };

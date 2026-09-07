@@ -1,21 +1,25 @@
 const jwt = require("jsonwebtoken");
 
-// Route ekak protect karanna oni nam methodeka use karanna
+// Protect routes that require an authenticated admin.
 function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Token na. Login wela ida." });
+    return res
+      .status(401)
+      .json({ message: "Authentication token is required" });
   }
 
   const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.admin = decoded; // { id, username }
+    req.admin = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Token eka invalid nattam expire wela." });
+    return res
+      .status(401)
+      .json({ message: "Authentication token is invalid or expired" });
   }
 }
 

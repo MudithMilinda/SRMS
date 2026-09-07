@@ -1,5 +1,5 @@
-// Meka run karanna one-time witharai, first admin account eka hadaganna
-// Terminal eke: node seedAdmin.js
+// Run this once to create the first admin account.
+// Command: node seedAdmin.js
 
 require("dotenv").config();
 const mongoose = require("mongoose");
@@ -15,17 +15,19 @@ async function seed() {
 
     const existing = await Admin.findOne({ username: USERNAME });
     if (existing) {
-      console.log(`⚠️  "${USERNAME}" kiyana admin ekak dængeම tියෙනවා. Seed karanne nehe.`);
+      console.log(
+        `⚠️  An admin named "${USERNAME}" already exists. Skipping seed.`,
+      );
       process.exit(0);
     }
 
     const admin = new Admin({ username: USERNAME, password: PASSWORD });
-    await admin.save(); // password eka model eke pre-save hook eken hash wenawa
+    await admin.save();
 
-    console.log("✅ Admin account hadala ivarai!");
+    console.log("✅ Admin account created successfully!");
     console.log(`   Username: ${USERNAME}`);
     console.log(`   Password: ${PASSWORD}`);
-    console.log("   (Login unata passe Settings ekata gihin password eka change karaganna.)");
+    console.log("   (Log in and change the password from Settings.)");
     process.exit(0);
   } catch (error) {
     console.error("❌ Seed error:", error.message);

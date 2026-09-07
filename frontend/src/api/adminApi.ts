@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// Backend eka run wena URL eka. Deploy karaddi Render URL eka danna.
+// URL where the backend runs. Set the Render URL when deploying.
 const API_BASE_URL = "http://localhost:5000";
 
 const api = axios.create({
@@ -8,7 +8,7 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Token thiyenawa nam, request ekatama automatic ekathu karanawa
+// Automatically attach the token to every request, if one exists
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("adminToken");
   if (token) {
@@ -33,7 +33,26 @@ export type AdminProfile = {
   topBarName: string;
 };
 
-// try/catch eke error message eka gannna use karanna
+export type ClassType = {
+  _id: string;
+  name: string;
+  teacher: string;
+  studentCount: number;
+  class: string;
+  type: "Theory" | "Revision" | "Practical";
+  status: "Active" | "Inactive";
+};
+
+export type ClassFormInput = {
+  name: string;
+  teacher: string;
+  studentCount: number | string;
+  class: string;
+  type: ClassType["type"];
+  status: ClassType["status"];
+};
+
+// Use this in a try/catch block to get a readable error message
 export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     return error.response?.data?.message || error.message;
@@ -74,5 +93,80 @@ export async function updateProfile(
     "/api/admin/profile",
     profile
   );
+  return res.data;
+}
+
+// ---------- Classes ----------
+
+export async function getClasses() {
+  const res = await api.get<{ classes: ClassType[] }>("/api/classes");
+  return res.data;
+}
+
+export async function createClass(form: ClassFormInput) {
+  const res = await api.post<{ message: string; class: ClassType }>(
+    "/api/classes",
+    form
+  );
+  return res.data;
+}
+
+export async function updateClass(id: string, form: ClassFormInput) {
+  const res = await api.put<{ message: string; class: ClassType }>(
+    `/api/classes/${id}`,
+    form
+  );
+  return res.data;
+}
+
+export async function deleteClass(id: string) {
+  const res = await api.delete<{ message: string }>(`/api/classes/${id}`);
+  return res.data;
+}
+
+// ---------- Assignments ----------
+
+export type AssignmentType = {
+  _id: string;
+  title: string;
+  class: ClassType; // populated class object
+  dueDate: string;
+  instructions: string;
+  fileUrl: string;
+  fileName: string;
+  createdAt: string;
+};
+
+export type AssignmentFormInput = {
+  title: string;
+  classId: string;
+  dueDate: string;
+  instructions: string;
+  file: File;
+};
+
+export async function getAssignments() {
+  const res = await api.get<{ assignments: AssignmentType[] }>("/api/assignments");
+  return res.data;
+}
+
+export async function createAssignment(form: AssignmentFormInput) {
+  const fd = new FormData();
+  fd.append("title", form.title);
+  fd.append("class", form.classId);
+  fd.append("dueDate", form.dueDate);
+  fd.append("instructions", form.instructions);
+  fd.append("file", form.file);
+
+  const res = await api.post<{ message: string; assignment: AssignmentType }>(
+    "/api/assignments",
+    fd,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return res.data;
+}
+
+export async function deleteAssignment(id: string) {
+  const res = await api.delete<{ message: string }>(`/api/assignments/${id}`);
   return res.data;
 }
