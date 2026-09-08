@@ -1,29 +1,16 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { getAssignments, deleteAssignment, getErrorMessage, type AssignmentType } from "../../api/adminApi"
 
 type DarkProps = { darkMode: boolean }
 
-type Assignment = {
-  id: number
-  title: string
-  class: string
-  subject: string
-  dueDate: string
-  fileName: string
-  fileUrl: string
-}
-
-const initialAssignments: Assignment[] = [
-  { id: 1, title: "Algebra Homework 3", class: "Grade 10", subject: "Mathematics", dueDate: "2024-10-15", fileName: "hw3_algebra.pdf", fileUrl: "#" },
-  { id: 2, title: "Essay on Global Warming", class: "Grade 11", subject: "English", dueDate: "2024-10-18", fileName: "global_warming_essay.docx", fileUrl: "#" },
-  { id: 3, title: "Physics Lab Report", class: "Grade 12", subject: "Science", dueDate: "2024-10-20", fileName: "physics_lab_02.pdf", fileUrl: "#" },
-  { id: 4, title: "History Timeline", class: "Grade 9", subject: "History", dueDate: "2024-10-14", fileName: "timeline_instructions.pdf", fileUrl: "#" },
-]
-
 export default function AllAssignments({ darkMode: d }: DarkProps) {
   const navigate = useNavigate()
-  const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments)
+  const [assignments, setAssignments] = useState<AssignmentType[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [search, setSearch] = useState("")
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const bg = d ? "#0f0f1a" : "#f1f5f9"
   const card = d ? "#1c1c30" : "#ffffff"
@@ -32,13 +19,54 @@ export default function AllAssignments({ darkMode: d }: DarkProps) {
   const mt = d ? "#64748b" : "#94a3b8"
   const inp = d ? "#13132a" : "#f8fafc"
 
-  const filtered = assignments.filter(a => {
+  // Load assignments from the backend on mount
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      try {
+        const data = await getAssignments()
+        setAssignments(data.assignments)
+      } catch (err) {
+        setError(getErrorMessage(err))
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchAssignments()
+  }, [])
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this assignment? This will also remove the file from Google Drive.")) return
+
+    setDeletingId(id)
+    try {
+      await deleteAssignment(id)
+      setAssignments((prev) => prev.filter((item) => item._id !== id))
+    } catch (err) {
+      alert(getErrorMessage(err))
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const handleView = (fileUrl: string) => {
+    window.open(fileUrl, "_blank", "noopener,noreferrer")
+  }
+
+  const filtered = assignments.filter((a) => {
+    const q = search.toLowerCase()
     return (
-      a.title.toLowerCase().includes(search.toLowerCase()) ||
-      a.class.toLowerCase().includes(search.toLowerCase()) ||
-      a.subject.toLowerCase().includes(search.toLowerCase())
+      a.title.toLowerCase().includes(q) ||
+      a.class?.name?.toLowerCase().includes(q) ||
+      a.class?.class?.toLowerCase().includes(q)
     )
   })
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" })
+  }
+
+  const isPdf = (fileName: string) => fileName.toLowerCase().endsWith(".pdf")
 
   const inputStyle = {
     width: "100%", padding: "9px 12px", borderRadius: 8,
@@ -63,6 +91,12 @@ export default function AllAssignments({ darkMode: d }: DarkProps) {
         </button>
       </div>
 
+      {error && (
+        <div style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", padding: "10px 14px", borderRadius: 8, fontSize: 13, marginBottom: 14 }}>
+          {error}
+        </div>
+      )}
+
       {/* Search */}
       <div style={{ display: "flex", gap: 10, marginBottom: "1.25rem", flexWrap: "wrap" }}>
         <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
@@ -70,7 +104,7 @@ export default function AllAssignments({ darkMode: d }: DarkProps) {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by title, class, subject…"
+            placeholder="Search by title, class…"
             style={{ ...inputStyle, paddingLeft: 36, background: card }}
           />
         </div>
@@ -82,26 +116,28 @@ export default function AllAssignments({ darkMode: d }: DarkProps) {
         {/* Table header */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr 2fr 1fr 80px",
+          gridTemplateColumns: "2fr 1fr 2fr 1fr 1fr 130px",
           padding: "10px 20px",
           borderBottom: `0.5px solid ${brd}`,
           background: d ? "rgba(255,255,255,0.03)" : "#f8fafc",
         }}>
-          {["Assignment", "Class", "File", "Due Date", ""].map(h => (
+          {["Assignment", "Class", "File", "Duration", "Due Date", ""].map(h => (
             <span key={h} style={{ fontSize: 10, fontWeight: 600, color: mt, textTransform: "uppercase", letterSpacing: "0.07em" }}>{h}</span>
           ))}
         </div>
 
         {/* Rows */}
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div style={{ padding: "2.5rem", textAlign: "center", color: mt, fontSize: 13 }}>Loading assignments...</div>
+        ) : filtered.length === 0 ? (
           <div style={{ padding: "2.5rem", textAlign: "center", color: mt, fontSize: 13 }}>No assignments found</div>
         ) : (
           filtered.map((a, i) => (
             <div
-              key={a.id}
+              key={a._id}
               style={{
                 display: "grid",
-                gridTemplateColumns: "2fr 1fr 2fr 1fr 80px",
+                gridTemplateColumns: "2fr 1fr 2fr 1fr 1fr 130px",
                 padding: "14px 20px",
                 alignItems: "center",
                 borderBottom: i < filtered.length - 1 ? `0.5px solid ${brd}` : "none",
@@ -110,53 +146,71 @@ export default function AllAssignments({ darkMode: d }: DarkProps) {
               onMouseEnter={e => (e.currentTarget.style.background = d ? "rgba(255,255,255,0.025)" : "#f8fafc")}
               onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
             >
-              {/* Assignment Title & Subject */}
+              {/* Assignment Title */}
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(168,85,247,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <i className="ti ti-file-text" style={{ fontSize: 18, color: "#a855f7" }} />
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: tx, lineHeight: 1.2 }}>{a.title}</h3>
-                  <p style={{ margin: "2px 0 0", fontSize: 11, color: mt }}>{a.subject}</p>
                 </div>
               </div>
 
               {/* Class */}
-              <span style={{ fontSize: 13, color: tx, fontWeight: 500 }}>{a.class}</span>
+              <span style={{ fontSize: 13, color: tx, fontWeight: 500 }}>
+                {a.class?.name} {a.class?.class ? `— ${a.class.class}` : ""}
+              </span>
 
               {/* File Info */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, background: inp, borderRadius: 8, padding: "6px 10px", border: `1px solid ${brd}`, width: "fit-content", maxWidth: "100%" }}>
-                <i className="ti ti-file-type-pdf" style={{ fontSize: 16, color: "#ef4444", flexShrink: 0 }} />
+                <i
+                  className={isPdf(a.fileName) ? "ti ti-file-type-pdf" : "ti ti-file-type-doc"}
+                  style={{ fontSize: 16, color: isPdf(a.fileName) ? "#ef4444" : "#3b82f6", flexShrink: 0 }}
+                />
                 <span style={{ fontSize: 12, color: tx, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {a.fileName}
                 </span>
-                <a
-                  href={a.fileUrl}
-                  download
-                  style={{ color: "#a855f7", background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", marginLeft: 8 }}
-                  title="Download File"
-                >
-                  <i className="ti ti-download" style={{ fontSize: 15 }} />
-                </a>
+              </div>
+
+              {/* Duration */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <i className="ti ti-clock" style={{ fontSize: 14, color: mt }} />
+                <span style={{ fontSize: 12, color: tx }}>{a.duration || "-"}</span>
               </div>
 
               {/* Due Date */}
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <i className="ti ti-calendar" style={{ fontSize: 14, color: mt }} />
-                <span style={{ fontSize: 12, color: tx }}>{a.dueDate}</span>
+                <span style={{ fontSize: 12, color: tx }}>{formatDate(a.dueDate)}</span>
               </div>
 
-              {/* Actions */}
-              <button
-                style={{
-                  background: "transparent", border: "none",
-                  color: "#ef4444", fontSize: 12, fontWeight: 600,
-                  cursor: "pointer", textAlign: "right"
-                }}
-                onClick={() => setAssignments(prev => prev.filter(item => item.id !== a.id))}
-              >
-                Delete
-              </button>
+              {/* Actions: View + Delete */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 14 }}>
+                <button
+                  onClick={() => handleView(a.fileUrl)}
+                  title="View File"
+                  style={{
+                    background: "transparent", border: "none",
+                    color: "#a855f7", fontSize: 12, fontWeight: 600,
+                    cursor: "pointer", display: "flex", alignItems: "center", gap: 4
+                  }}
+                >
+                  <i className="ti ti-eye" style={{ fontSize: 15 }} />
+                  View
+                </button>
+                <button
+                  disabled={deletingId === a._id}
+                  onClick={() => handleDelete(a._id)}
+                  style={{
+                    background: "transparent", border: "none",
+                    color: "#ef4444", fontSize: 12, fontWeight: 600,
+                    cursor: deletingId === a._id ? "not-allowed" : "pointer",
+                    opacity: deletingId === a._id ? 0.6 : 1,
+                  }}
+                >
+                  {deletingId === a._id ? "..." : "Delete"}
+                </button>
+              </div>
             </div>
           ))
         )}
@@ -164,4 +218,3 @@ export default function AllAssignments({ darkMode: d }: DarkProps) {
     </main>
   )
 }
-

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getClasses, createAssignment, getErrorMessage, type ClassType } from "../../api/adminApi"; // adjust this path to match your folder structure
+import { getClasses, createAssignment, getErrorMessage, type ClassType } from "../../api/adminApi";
 
 type AddAssignmentProps = {
   darkMode: boolean;
@@ -22,6 +22,10 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
     dueDate: "",
     instructions: "",
   });
+
+  // Duration kept separate as hours/minutes so there's no ambiguity about units
+  const [durationHours, setDurationHours] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState("");
 
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -59,6 +63,22 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
       setError("A file must be uploaded");
       return;
     }
+
+    const hours = Number(durationHours) || 0;
+    const minutes = Number(durationMinutes) || 0;
+
+    if (hours === 0 && minutes === 0) {
+      setError("Please set a duration");
+      return;
+    }
+    if (minutes > 59) {
+      setError("Minutes must be between 0 and 59");
+      return;
+    }
+
+    // Sent to the backend as total minutes - unambiguous, easy to store/query
+    const durationInMinutes = hours * 60 + minutes;
+
     setError("");
     setSuccess("");
     setSubmitting(true);
@@ -67,11 +87,14 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
         title: formData.title,
         classId: formData.classId,
         dueDate: formData.dueDate,
+        duration: durationInMinutes,
         instructions: formData.instructions,
         file,
       });
       setSuccess("Assignment uploaded successfully!");
       setFormData({ title: "", classId: "", dueDate: "", instructions: "" });
+      setDurationHours("");
+      setDurationMinutes("");
       setFile(null);
     } catch (err) {
       setError(getErrorMessage(err));
@@ -122,7 +145,7 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
 
         <form onSubmit={handleSubmit} style={{ background: card, border: `1px solid ${brd}`, borderRadius: 12, padding: "1.5rem" }}>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
             <div>
               <label style={labelStyle}>Assignment Title</label>
               <input
@@ -130,6 +153,40 @@ export default function AddAssignment({ darkMode: d }: AddAssignmentProps) {
                 value={formData.title} onChange={handleInputChange}
                 style={inputStyle} required
               />
+            </div>
+            <div>
+              <label style={labelStyle}>Duration</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="0"
+                    value={durationHours}
+                    onChange={(e) => setDurationHours(e.target.value)}
+                    style={{ ...inputStyle, paddingRight: 42 }}
+                    required
+                  />
+                  <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: mt, pointerEvents: "none" }}>
+                    hrs
+                  </span>
+                </div>
+                <div style={{ position: "relative", flex: 1 }}>
+                  <input
+                    type="number"
+                    min={0}
+                    max={59}
+                    placeholder="0"
+                    value={durationMinutes}
+                    onChange={(e) => setDurationMinutes(e.target.value)}
+                    style={{ ...inputStyle, paddingRight: 42 }}
+                    required
+                  />
+                  <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", fontSize: 12, color: mt, pointerEvents: "none" }}>
+                    min
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 

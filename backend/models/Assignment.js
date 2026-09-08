@@ -9,6 +9,7 @@ const assignmentSchema = new mongoose.Schema(
       required: true,
     },
     dueDate: { type: Date, required: true },
+    duration: { type: String, required: true },
     instructions: { type: String, required: true },
 
     // The file itself lives on Google Drive - only the link is stored here
@@ -22,7 +23,7 @@ const assignmentSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Assignment", assignmentSchema);

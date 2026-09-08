@@ -1,8 +1,7 @@
 type PeriodDetailsModalProps = {
   darkMode: boolean
-  subject: string
   className: string
-  teacher: string
+  type: string
   date: string
   time: string
   color: string
@@ -12,9 +11,8 @@ type PeriodDetailsModalProps = {
 
 export default function PeriodDetailsModal({
   darkMode,
-  subject,
   className,
-  teacher,
+  type,
   date,
   time,
   color,
@@ -28,9 +26,8 @@ export default function PeriodDetailsModal({
   const inputBg = darkMode ? "rgba(255,255,255,0.05)" : "#f8fafc"
 
   const details = [
-    { icon: "ti-book", label: "Subject", value: subject },
     { icon: "ti-users", label: "Class", value: className },
-    { icon: "ti-user", label: "Teacher", value: teacher },
+    { icon: "ti-layout-grid", label: "Type", value: type },
     { icon: "ti-calendar", label: "Date", value: date },
     { icon: "ti-clock", label: "Time", value: time },
   ]

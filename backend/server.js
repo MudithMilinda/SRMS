@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 5000;
 const classRoutes = require("./routes/classRoutes");
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const googleDriveRoutes = require("./routes/googleDriveRoutes");
+const periodRoutes = require("./routes/periodRoutes");
 
 app.use(cors());
 app.use(express.json());
@@ -39,3 +40,4 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/admin/google", googleDriveRoutes);
+app.use("/api/periods", periodRoutes);

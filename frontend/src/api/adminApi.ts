@@ -141,6 +141,7 @@ export type AssignmentType = {
   title: string;
   class: ClassType; // populated class object
   dueDate: string;
+  duration: string;
   instructions: string;
   fileUrl: string;
   fileName: string;
@@ -151,6 +152,7 @@ export type AssignmentFormInput = {
   title: string;
   classId: string;
   dueDate: string;
+  duration: string;
   instructions: string;
   file: File;
 };
@@ -165,6 +167,7 @@ export async function createAssignment(form: AssignmentFormInput) {
   fd.append("title", form.title);
   fd.append("class", form.classId);
   fd.append("dueDate", form.dueDate);
+  fd.append("duration", form.duration);
   fd.append("instructions", form.instructions);
   fd.append("file", form.file);
 
@@ -178,5 +181,42 @@ export async function createAssignment(form: AssignmentFormInput) {
 
 export async function deleteAssignment(id: string) {
   const res = await api.delete<{ message: string }>(`/api/assignments/${id}`);
+  return res.data;
+}
+
+// ---------- Time table period ----------
+export type PeriodType = {
+  _id: string;
+  class: ClassType;
+  recurring: boolean;
+  dayOfWeek?: number; // 0=Mon...6=Sun
+  date?: string;
+  start: number;
+  end: number;
+};
+
+export type PeriodFormInput = {
+  classId: string;
+  start: number;
+  end: number;
+  recurring: boolean;
+  dayOfWeek?: number;
+  date?: string;
+};
+
+export async function getPeriods(from?: string, to?: string) {
+  const res = await api.get<{ periods: PeriodType[] }>("/api/periods", {
+    params: { from, to },
+  });
+  return res.data;
+}
+
+export async function createPeriod(form: PeriodFormInput) {
+  const res = await api.post<{ message: string; period: PeriodType }>("/api/periods", form);
+  return res.data;
+}
+
+export async function deletePeriod(id: string) {
+  const res = await api.delete<{ message: string }>(`/api/periods/${id}`);
   return res.data;
 }

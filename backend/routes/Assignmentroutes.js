@@ -2,7 +2,10 @@ const express = require("express");
 const multer = require("multer");
 const Assignment = require("../models/Assignment");
 const verifyToken = require("../middleware/auth");
-const { uploadFileToDrive, deleteFileFromDrive } = require("../utils/googleDrive");
+const {
+  uploadFileToDrive,
+  deleteFileFromDrive,
+} = require("../utils/googleDrive");
 
 const router = express.Router();
 
@@ -39,9 +42,9 @@ router.get("/", verifyToken, async (req, res) => {
 // POST /api/assignments -> upload file to Drive, then save the link in the DB
 router.post("/", verifyToken, upload.single("file"), async (req, res) => {
   try {
-    const { title, class: classId, dueDate, instructions } = req.body;
+    const { title, class: classId, dueDate, duration, instructions } = req.body;
 
-    if (!title || !classId || !dueDate || !instructions) {
+    if (!title || !classId || !dueDate || !duration || !instructions) {
       return res.status(400).json({ message: "All fields are required" });
     }
     if (!req.file) {
@@ -49,12 +52,16 @@ router.post("/", verifyToken, upload.single("file"), async (req, res) => {
     }
 
     // Upload to Google Drive - uses this admin's own stored refresh token
-    const { driveFileId, fileUrl } = await uploadFileToDrive(req.file, req.admin.id);
+    const { driveFileId, fileUrl } = await uploadFileToDrive(
+      req.file,
+      req.admin.id,
+    );
 
     const assignment = await Assignment.create({
       title,
       class: classId,
       dueDate,
+      duration,
       instructions,
       fileUrl,
       fileName: req.file.originalname,
@@ -64,11 +71,21 @@ router.post("/", verifyToken, upload.single("file"), async (req, res) => {
 
     const populated = await assignment.populate("class", "name class teacher");
 
-    res.status(201).json({ message: "Assignment uploaded successfully", assignment: populated });
+    res
+      .status(201)
+      .json({
+        message: "Assignment uploaded successfully",
+        assignment: populated,
+      });
   } catch (error) {
     console.error("Create assignment error:", error.message);
     if (error.code === "DRIVE_NOT_CONNECTED") {
-      return res.status(400).json({ message: "Google Drive is not connected. Please connect it from Settings first." });
+      return res
+        .status(400)
+        .json({
+          message:
+            "Google Drive is not connected. Please connect it from Settings first.",
+        });
     }
     res.status(500).json({ message: error.message || "Server error" });
   }
@@ -77,7 +94,10 @@ router.post("/", verifyToken, upload.single("file"), async (req, res) => {
 // DELETE /api/assignments/:id -> delete the Drive file and the DB record
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
-    const assignment = await Assignment.findOne({ _id: req.params.id, createdBy: req.admin.id });
+    const assignment = await Assignment.findOne({
+      _id: req.params.id,
+      createdBy: req.admin.id,
+    });
     if (!assignment) {
       return res.status(404).json({ message: "Assignment not found" });
     }
@@ -95,7 +115,8 @@ router.delete("/:id", verifyToken, async (req, res) => {
       // Still remove the DB record so the assignment doesn't show as a dangling entry, but let the admin know.
       await assignment.deleteOne();
       return res.json({
-        message: "Assignment removed, but the file on Drive could not be deleted (Drive is disconnected for that admin).",
+        message:
+          "Assignment removed, but the file on Drive could not be deleted (Drive is disconnected for that admin).",
       });
     }
     res.status(500).json({ message: "Server error" });
