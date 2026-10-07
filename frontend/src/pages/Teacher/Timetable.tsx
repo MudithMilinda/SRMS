@@ -496,7 +496,7 @@ export default function TimeTable({ darkMode }: TimeTableProps) {
             <i className="ti ti-plus" style={{ fontSize: 14 }} aria-hidden="true" />
             Add period
           </button>
-        </div>
+        
 
         {/* Timetable grid */}
         <div style={{ background: card, border: `0.5px solid ${brd}`, borderRadius: 12, overflow: "hidden" }}>
