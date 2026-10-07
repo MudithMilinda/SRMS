@@ -477,6 +477,7 @@ export default function TimeTable({ darkMode }: TimeTableProps) {
             { label: "Next", action: () => selectDate(addDays(selectedDate, 7)) },
           ].map((btn) => (
             
+              <button
               key={btn.label}
               onClick={btn.action}
               style={{ padding: "5px 14px", borderRadius: 20, fontSize: 12, fontWeight: 500, cursor: "pointer", border: `0.5px solid ${brd}`, background: inputBg, color: mt, display: "flex", alignItems: "center", gap: 4 }}
