@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 const verifyToken = require("../middleware/auth");
 
-No change proposed: the reported failing file was not supplied, so a valid patch cannot be determined.
+// No change proposed: the reported failing file was not supplied, so a valid patch cannot be determined.
 
 // POST /api/admin/login
 router.post("/login", async (req, res) => {
