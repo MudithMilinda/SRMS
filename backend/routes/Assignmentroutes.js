@@ -112,9 +112,8 @@ router.delete("/:id", verifyToken, async (req, res) => {
   } catch (error) {
     console.error("Delete assignment error:", error.message);
     if (error.code === "DRIVE_NOT_CONNECTED") {
-      // The file's owner admin disconnected Drive - the file can't be removed from Drive automatically.
-      // Still remove the DB record so the assignment doesn't show as a dangling entry, but let the admin know.
-      await assignment.deleteOne();
+      // Still remove the DB record when an assignment was found.
+      if (assignment) await assignment.deleteOne();
       return res.json({
         message:
           "Assignment removed, but the file on Drive could not be deleted (Drive is disconnected for that admin).",
