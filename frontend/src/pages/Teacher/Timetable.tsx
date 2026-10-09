@@ -620,6 +620,7 @@ export default function TimeTable({ darkMode }: TimeTableProps) {
           onDelete={handleDeleteSelectedPeriod}
         />
       )}
+      </div>
     </main>
   )
 }
