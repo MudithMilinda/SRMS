@@ -93,8 +93,9 @@ router.post("/", verifyToken, upload.single("file"), async (req, res) => {
 
 // DELETE /api/assignments/:id -> delete the Drive file and the DB record
 router.delete("/:id", verifyToken, async (req, res) => {
+  let assignment;
   try {
-    const assignment = await Assignment.findOne({
+    assignment = await Assignment.findOne({
       _id: req.params.id,
       createdBy: req.admin.id,
     });

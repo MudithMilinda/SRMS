@@ -23,7 +23,7 @@ const initialStudents: Student[] = [
 
 export default function AllStudents({ darkMode: d }: DarkProps) {
   const navigate = useNavigate()
-  const [students, setStudents] = useState<Student[]>(initialStudents)
+  const [students, _setStudents] = useState<Student[]>(initialStudents)
   const [search, setSearch] = useState("")
   const [filterClass, setFilterClass] = useState<string>("All")
 
