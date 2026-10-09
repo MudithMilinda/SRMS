@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, useLocation, Outlet } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import Sidebar from "../../components/Sidebar"
 import Topbar from "../../components/Topbar"
 import StudentAssignments from "./StudentAssignments"
