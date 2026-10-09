@@ -51,7 +51,7 @@ export default function Settings({ darkMode: d }: SettingsProps) {
           phone: data.admin.phone ?? prev.phone,
           topBarName: data.admin.topBarName ?? prev.topBarName,
         }));
-      } catch (error) {
+      } catch {
         // Keep the default values if the profile cannot be loaded.
       }
     };
