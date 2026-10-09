@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
-const verifyToken = require("../middleware/auth");
+// Add backend/middleware/auth.js and export the authentication middleware used by the protected admin routes.
 
 // No change proposed: the reported failing file was not supplied, so a valid patch cannot be determined.
 
