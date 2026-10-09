@@ -487,13 +487,13 @@ export default function TimeTable({ darkMode }: TimeTableProps) {
             </button>
           ))}
           
-            onClick={() => {
-              setAddPeriodError("")
-              setIsAddModalOpen(true)
-            }}
             <button
-            style={{ padding: "5px 16px", borderRadius: 20, fontSize: 12, fontWeight: 500, cursor: "pointer", border: "none", background: "linear-gradient(135deg, #a855f7, #ec4899)", color: "#fff", display: "flex", alignItems: "center", gap: 6 }}
-          >
+              onClick={() => {
+                setAddPeriodError("")
+                setIsAddModalOpen(true)
+              }}
+              style={{ padding: "5px 16px", borderRadius: 20, fontSize: 12, fontWeight: 500, cursor: "pointer", border: "none", background: "linear-gradient(135deg, #a855f7, #ec4899)", color: "#fff", display: "flex", alignItems: "center", gap: 6 }}
+            >
             <i className="ti ti-plus" style={{ fontSize: 14 }} aria-hidden="true" />
             Add period
           </button>
