@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 
-const Admin = require("../models/Admin");
+// Add the missing backend/models/Admin.js module, exporting the Admin model used by this route.
 const verifyToken = require("../middleware/auth");
 const { getAuthUrl, exchangeCodeForTokens } = require("../utils/googleDrive");
 
