@@ -45,6 +45,8 @@ router.post("/login", async (req, res) => {
 });
 
 // GET /api/admin/profile (protected)
+const verifyToken = require("../middleware/auth");
+
 router.get("/profile", verifyToken, async (req, res) => {
   try {
     const admin = await Admin.findById(req.admin.id).select("-password");
