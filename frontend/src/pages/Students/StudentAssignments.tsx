@@ -7,7 +7,7 @@ type StudentAssignmentsProps = {
 
 export default function StudentAssignments({ darkMode: d }: StudentAssignmentsProps) {
   const navigate = useNavigate();
-  const bg = d ? "#0f0f1a" : "#f1f5f9";
+  const _bg = d ? "#0f0f1a" : "#f1f5f9";
   const card = d ? "#1c1c30" : "#ffffff";
   const brd = d ? "rgba(255,255,255,0.07)" : "#e2e8f0";
   const tx = d ? "#e2e8f0" : "#0f172a";
